@@ -16,7 +16,6 @@ getOxygenGeneratorRating bitIdx readings = getOxygenGeneratorRating (bitIdx+1) (
     mostCommonBit = fst . last $ getIthBitFrequencies bitIdx readings
 
 getCO2ScrubberRating :: Int -> [String] -> [String]
-
 getCO2ScrubberRating _ [] = error "Filtered everything :("
 getCO2ScrubberRating _ [x] = [x]
 getCO2ScrubberRating bitIdx readings = getCO2ScrubberRating (bitIdx+1) (filter (\binaryReading -> (binaryReading !! bitIdx) == mostCommonBit ) readings) where
