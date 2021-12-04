@@ -1,3 +1,4 @@
+
 import Data.List
 import Data.List.Split
 import Control.Arrow
@@ -22,21 +23,17 @@ isColumnBingo = isRowBingo . transpose
 isBingo :: Board -> Bool
 isBingo board = uncurry (||) $ (isRowBingo &&& isColumnBingo) board
 
-findBingo :: [Board] -> Maybe Board
-findBingo boards = 
-    case filter isBingo boards of
-        [] -> Nothing
-        xs -> Just $ head xs
-
 evaluateBoard :: Board -> Int
 evaluateBoard board = sum $ map sum board
 
 playBingo :: [Int] -> [Board] -> (Int, Board)
-playBingo draws boards =
-    case findBingo markedBoards of
-        Nothing -> playBingo (tail draws) markedBoards
-        Just board -> (draw, board)
-    where 
+playBingo [] _ = error "Ran out of draws"
+playBingo _ [] = error "No unique board left"
+playBingo draws boards = 
+    case filter (not . isBingo) markedBoards of
+        [] -> (draw, head markedBoards)
+        remainingMarkedBoards -> playBingo (tail draws) remainingMarkedBoards
+    where
         markedBoards = markNumberOnBoards draw boards
         draw = head draws
 
@@ -46,6 +43,6 @@ main = do
     let lines' = splitOn "\n" contents
     let draws = map readInt $ splitOn "," $ head lines'
     let boards = chunksOf 5 $ map (map readInt . words) . tail $ filter (/= "") lines'
-    let (lastNumber, winningBoard) = playBingo draws boards
-    let scoreOfWinningBoard = evaluateBoard winningBoard
-    print $ scoreOfWinningBoard * lastNumber
+    let (winningNumber, lastBoard) = playBingo draws boards
+    let scoreOfLastBoard = evaluateBoard lastBoard
+    print $ scoreOfLastBoard * winningNumber
